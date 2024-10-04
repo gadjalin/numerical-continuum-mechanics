@@ -1,6 +1,0 @@
-[submodule "ZucchiniEngine"]
-	path = ZucchiniEngine
-	url = https://github.com/AarnoldGad/ZucchiniEngine.git
-[submodule "ZGraphics2D"]
-	path = ZGraphics2D
-	url = https://github.com/AarnoldGad/ZGraphics2D.git
