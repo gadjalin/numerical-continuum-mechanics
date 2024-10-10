@@ -1,0 +1,3 @@
+[submodule "visualise/deps/glf90w"]
+	path = visualise/deps/glf90w
+	url = https://github.com/AarnoldGad/glf90w

@@ -1,0 +1,35 @@
+ADD_EXECUTABLE(ncm)
+
+SET_TARGET_PROPERTIES(ncm PROPERTIES
+    OUTPUT_NAME ncm
+    VERSION 2
+    CXX_STANDARD 20
+    CXX_STANDARD_REQUIRED ON
+    CXX_EXTENSIONS OFF
+    FOLDER "ncm")
+
+SET(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
+
+TARGET_COMPILE_DEFINITIONS(ncm PRIVATE
+    $<$<Config:Debug>:_DEBUG>
+    $<$<Config:Release>:NDEBUG>)
+
+TARGET_INCLUDE_DIRECTORIES(ncm PRIVATE
+    "${SRC_DIR}"
+    "${PROJECT_BINARY_DIR}")
+
+TARGET_INCLUDE_DIRECTORIES(ncm SYSTEM PRIVATE
+    $<$<PLATFORM_ID:Linux,Darwin>:/usr/include>
+    $<$<PLATFORM_ID:Linux,Darwin>:/usr/local/include>)
+
+TARGET_SOURCES(ncm PRIVATE
+    ${SRC_DIR}/main.cpp)
+
+TARGET_LINK_DIRECTORIES(ncm PRIVATE
+    $<$<PLATFORM_ID:Linux,Darwin>:/usr/lib>
+    $<$<PLATFORM_ID:Linux,Darwin>:/usr/local/lib>)
+
+TARGET_LINK_LIBRARIES(ncm PRIVATE
+    Threads::Threads
+    ${CMAKE_DL_LIBS})
+
