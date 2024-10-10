@@ -2,6 +2,7 @@
 
 .git/
 .cache/
+.archives/
 
 # IDE Projects
 

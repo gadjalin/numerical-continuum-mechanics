@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "args.hpp"
+#include "domain.hpp"
 
 int main(int argc, char* argv[])
 {
