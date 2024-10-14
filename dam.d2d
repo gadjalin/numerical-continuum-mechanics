@@ -1,0 +1,10 @@
+# Vertices : name x y
+VERTEX V1 0.0 0.0
+VERTEX V2 0.0 10.0
+VERTEX V3 5.0 0.0
+
+# Boundaries : name vertex1 vertex2 type
+BOUNDARY BASE V1 V3 FIXED
+BOUNDARY FACE V1 V2 USER
+BOUNDARY BACK V2 V3 FREE
+

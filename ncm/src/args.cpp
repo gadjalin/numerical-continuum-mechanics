@@ -10,7 +10,6 @@ program_arguments_t parse_command_line(int argc, char* argv[])
 {
     program_arguments_t args = {
         .par_file = "mesh.par",
-        .output_file = "dam.dat"
     };
 
     for (int i = 1; i < argc; ++i)
@@ -21,13 +20,6 @@ program_arguments_t parse_command_line(int argc, char* argv[])
         {
             if (++i < argc)
                 args.par_file = argv[i];
-            else
-                throw missing_argument_value(arg);
-        }
-        else if (std::strcmp(arg, "--out") == 0)
-        {
-            if (++i < argc)
-                args.output_file = argv[i];
             else
                 throw missing_argument_value(arg);
         }

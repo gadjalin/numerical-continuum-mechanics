@@ -2,11 +2,11 @@
 #define NCM_ARGS_HPP
 
 #include <string>
+#include <stdexcept>
 
 typedef struct program_arguments
 {
     std::string par_file;
-    std::string output_file;
 } program_arguments_t;
 
 class unrecognised_argument : public std::runtime_error

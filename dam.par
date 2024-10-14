@@ -1,0 +1,10 @@
+# Parameter file for the dam
+output_file = "dam.dat"
+domain_file = "dam.d2d" # domain2d
+resolution = 0.1
+
+E = 1e2 # Young modulus
+nu = 0.3 # Poisson factor
+dens = 2e3 # Density of the material
+g = 9.81 # Acceleration of gravity
+
