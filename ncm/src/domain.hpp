@@ -3,7 +3,7 @@
 
 #include <string>
 #include <map>
-#include <stdexcept>
+#include "error.hpp"
 
 enum class boundary_type : uint8_t
 { 
@@ -29,10 +29,10 @@ typedef struct domain
     std::map<std::string, boundary_t> boundaries;
 } domain_t;
 
-class multiple_definitions : public std::runtime_error
+class multiple_definitions_error : public error
 {
 public:
-    multiple_definitions(std::string const& filename, std::string const& name);
+    multiple_definitions_error(std::string const& filename, std::string const& name);
 };
 
 domain_t read_domain_file(std::string const& filename);

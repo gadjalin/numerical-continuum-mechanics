@@ -2,20 +2,27 @@
 #define NCM_PARSE_HPP
 
 #include <string>
-#include <stdexcept>
+#include "error.hpp"
 
 #define PARFILE_COMMENT_CHAR '#'
 
-class invalid_file_format : public std::runtime_error
+typedef struct file_location
+{
+    std::string file;
+    size_t line;
+    std::string expr;
+} file_location_t;
+
+class invalid_file_format : public error
 {
 public:
-    invalid_file_format(std::string const& parfile, std::size_t line_nr, std::string const& expr);
+    invalid_file_format(file_location_t const& loc);
 };
 
-class unknown_file_key : public std::runtime_error
+class invalid_file_expression : public error
 {
 public:
-    unknown_file_key(std::string const& file, std::size_t line_nr, std::string const& key);
+    invalid_file_expression(file_location_t const& loc);
 };
 
 [[nodiscard]]

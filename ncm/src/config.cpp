@@ -3,7 +3,7 @@
 #include <fstream>
 #include "parse.hpp"
 
-config_t read_par_file(std::string const& filename)
+config_t read_config_file(std::string const& filename)
 {
     config_t cfg = {};
 
@@ -21,7 +21,7 @@ config_t read_par_file(std::string const& filename)
 
         std::size_t equal_sign_pos = line.find('=');
         if (equal_sign_pos == std::string::npos)
-            throw invalid_file_format(filename, line_nr, line);
+            throw invalid_file_format({filename, line_nr, line});
 
         std::string key = trim(line.substr(0, equal_sign_pos));
         std::string value = trim(line.substr(equal_sign_pos + 1));
@@ -44,9 +44,15 @@ config_t read_par_file(std::string const& filename)
         else if (key == "resolution")
             cfg.resolution = std::stof(value);
         else
-            throw unknown_file_key(filename, line_nr, key);
+            throw invalid_file_expression({filename, line_nr, key});
     }
 
     return cfg;
+}
+
+void check_config(config_t const& cfg)
+{
+    if (cfg.output_file.empty()) throw std::runtime_error("Empty output file name!");
+    if (cfg.domain_file.empty()) throw std::runtime_error("Empty mesh file name!");
 }
 

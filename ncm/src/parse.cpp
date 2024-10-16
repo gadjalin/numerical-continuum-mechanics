@@ -1,5 +1,11 @@
 #include "parse.hpp"
 
+invalid_file_format::invalid_file_format(file_location_t const& loc)
+    : error("Invalid format in file " + loc.file + " @ line " + std::to_string(loc.line) + ": " + loc.expr) {}
+
+invalid_file_expression::invalid_file_expression(file_location_t const& loc)
+    : error("Invalid expression in file " + loc.file + " @ line " + std::to_string(loc.line) + ": " + loc.expr) {}
+
 [[nodiscard]]
 std::string trim_comment(std::string const& line)
 {
@@ -19,10 +25,4 @@ std::string trim(std::string const& line)
     else
         return line.substr(start);
 }
-
-invalid_file_format::invalid_file_format(std::string const& parfile, std::size_t line_nr, std::string const& line)
-    : std::runtime_error("Invalid format in file " + parfile + " @ line " + std::to_string(line_nr) + ": " + line) {}
-
-unknown_file_key::unknown_file_key(std::string const& file, std::size_t line_nr, std::string const& key)
-    : std::runtime_error("Unknown key in file " + file + " @ line " + std::to_string(line_nr) + ": " + key) {}
 

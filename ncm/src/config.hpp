@@ -14,6 +14,8 @@ typedef struct config
     float resolution;
 } config_t;
 
-config_t read_par_file(std::string const& filename);
+config_t read_config_file(std::string const& filename);
+void check_config(config_t const& cfg);
 
 #endif // NCM_CONFIG_HPP
+

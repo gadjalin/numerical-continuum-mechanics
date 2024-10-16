@@ -1,5 +1,3 @@
-#include <stdexcept>
-
 #include "debug.hpp"
 #include "args.hpp"
 #include "config.hpp"
@@ -8,10 +6,10 @@
 int main(int argc, char* argv[])
 {
     program_arguments_t args = parse_command_line(argc, argv);
+    check_arguments(args);
 
-    config_t cfg = read_par_file(args.par_file);
-    if (cfg.output_file.empty()) throw std::runtime_error("Empty output file name!");
-    if (cfg.domain_file.empty()) throw std::runtime_error("Empty mesh file name!");
+    config_t cfg = read_config_file(args.par_file);
+    check_config(cfg);
 
 #ifdef _DEBUG
     print_config(cfg);

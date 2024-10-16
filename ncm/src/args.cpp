@@ -1,10 +1,10 @@
 #include "args.hpp"
 
-unrecognised_argument::unrecognised_argument(std::string const& arg)
-    : std::runtime_error("Unrecognised argument: " + arg) {}
+unknown_argument::unknown_argument(std::string const& arg)
+    : error("Unrecognised argument: " + arg) {}
 
 missing_argument_value::missing_argument_value(std::string const& arg)
-    : std::runtime_error("Missing value after argument: " + arg) {}
+    : error("Missing value after argument: " + arg) {}
 
 program_arguments_t parse_command_line(int argc, char* argv[])
 {
@@ -24,9 +24,14 @@ program_arguments_t parse_command_line(int argc, char* argv[])
                 throw missing_argument_value(arg);
         }
         else
-            throw unrecognised_argument(arg);
+            throw unknown_argument(arg);
     }
 
     return args;
+}
+
+void check_arguments(program_arguments_t const& args)
+{
+
 }
 
