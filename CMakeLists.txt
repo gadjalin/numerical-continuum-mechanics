@@ -1,6 +1,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.20 FATAL_ERROR)
 
-PROJECT(ncm_project LANGUAGES C CXX Fortran)
+PROJECT(ncm_project
+    DESCRIPTION "A numerical continuum mechanics project for school"
+    HOMEPAGE_URL https://www.github.com/aarnoldgad/numerical-continuum-mechanics
+    LANGUAGES C CXX Fortran)
 
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDER ON)
 SET(CMAKE_CONFIGURATION_TYPES Release Debug)
