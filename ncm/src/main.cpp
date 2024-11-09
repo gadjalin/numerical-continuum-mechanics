@@ -9,7 +9,7 @@ int main(int argc, char* argv[])
     check_arguments(args);
 
     config_t cfg = read_config_file(args.par_file);
-    check_config(cfg);
+    validate_config(cfg);
 
 #ifdef _DEBUG
     print_config(cfg);

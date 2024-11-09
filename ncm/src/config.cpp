@@ -50,7 +50,7 @@ config_t read_config_file(std::string const& filename)
     return cfg;
 }
 
-void check_config(config_t const& cfg)
+void validate_config(config_t const& cfg)
 {
     if (cfg.output_file.empty()) throw std::runtime_error("Empty output file name!");
     if (cfg.domain_file.empty()) throw std::runtime_error("Empty mesh file name!");

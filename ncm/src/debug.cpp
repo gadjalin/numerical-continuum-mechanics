@@ -20,15 +20,15 @@ void print_config(config_t const& cfg)
 void print_domain(domain_t const& domain)
 {
     std::cout << "###### Domain file ######" << std::endl;
-    for (auto vertex : domain.vertices)
-        std::cout << "\tVERTEX " << vertex.first << " " << vertex.second.x << " " << vertex.second.y << std::endl;
+    for (auto [name, vertex] : domain.vertices)
+        std::cout << "\tVERTEX " << name << " " << vertex.x << " " << vertex.y << std::endl;
 
-    for (auto boundary : domain.boundaries)
+    for (auto [name, boundary] : domain.boundaries)
     {
-        std::string type_str = boundary.second.type == boundary_type::FREE ? "FREE" :
-                               boundary.second.type == boundary_type::FIXED ? "FIXED" :
-                               boundary.second.type == boundary_type::USER ? "USER" : "UNKNOWN";
-        std::cout << "\tBOUNDARY " << boundary.first << " " << boundary.second.v1 << " " << boundary.second.v2 << " " << type_str << std::endl;
+        std::string type_str = boundary.type == boundary_type::FREE ? "FREE" :
+                               boundary.type == boundary_type::FIXED ? "FIXED" :
+                               boundary.type == boundary_type::USER ? "USER" : "UNKNOWN";
+        std::cout << "\tBOUNDARY " << name << " " << boundary.v1 << " " << boundary.v2 << " " << type_str << std::endl;
     }
     std::cout << "#########################" << std::endl;
 } 
