@@ -16,6 +16,7 @@ int main(int argc, char* argv[])
 #endif
 
     domain_t domain = read_domain_file(cfg.domain_file);
+    validate_domain(domain);
 
 #ifdef _DEBUG
     print_domain(domain);

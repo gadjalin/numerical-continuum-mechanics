@@ -1,39 +1,40 @@
 #include "domain.hpp"
 
 #include <fstream>
-#include <sstream>
 #include <tuple>
+#include <cstdio>
+#include <cassert>
 #include "parse.hpp"
 
-multiple_definitions_error::multiple_definitions_error(std::string const& filename, std::string const& name)
-    : error("Multiple definitions of object " + name + " in file " + filename) {}
+multiple_definitions_error::multiple_definitions_error(file_location_t const& loc)
+    : error("Multiple definitions of object " + loc.expr + " in file " + loc.file + " @ line " + std::to_string(loc.line)) {}
 
-std::tuple<std::string, vertex_t> read_vertex(std::stringstream& ss, file_location_t const& loc)
+std::tuple<std::string, vertex_t> read_vertex(std::string_view line, file_location_t const& loc)
 {
-    std::string name;
+    char name[32];
     float x, y;
-    ss >> name >> x >> y;
+    int read = std::sscanf(line.data(), "%31s %f %f", name, &x, &y);
 
-    if (!ss)
+    if (read < 3)
         throw invalid_file_format(loc);
 
     return {name, {.x = x, .y = y}};
 }
 
-std::tuple<std::string, boundary_t> read_boundary(std::stringstream& ss, file_location_t const& loc)
+std::tuple<std::string, boundary_t> read_boundary(std::string_view line, file_location_t const& loc)
 {
-    std::string name, v1, v2, type_str;
+    char name[32], v1[32], v2[32], type_str[32];
     boundary_type type;
-    ss >> name >> v1 >> v2 >> type_str;
+    int read = std::sscanf(line.data(), "%31s %31s %31s %31s", name, v1, v2, type_str);
 
-    if (!ss)
+    if (read < 4)
         throw invalid_file_format(loc);
 
-    if (type_str == "FREE")
+    if (!std::strcmp(type_str, "FREE"))
         type = boundary_type::FREE;
-    else if (type_str == "FIXED")
+    else if (!std::strcmp(type_str, "FIXED"))
         type = boundary_type::FIXED;
-    else if (type_str == "USER")
+    else if (!std::strcmp(type_str, "USER"))
         type = boundary_type::USER;
     else
         throw invalid_file_expression(loc);
@@ -57,25 +58,25 @@ domain_t read_domain_file(std::string const& filename)
         line = trim(line);
         if (line.empty()) continue;
 
-        std::stringstream ss(line);
-        std::string key;
-        ss >> key;
-        if (!ss)
+        char key[16];
+        int pos = 0;
+        int read = std::sscanf(line.c_str(), "%15s%n", key, &pos);
+        if (!read)
             throw invalid_file_format({filename, line_nr, line});
 
-        if (key == "VERTEX")
+        if (!std::strcmp(key, "VERTEX"))
         {
-            auto [name, vertex] = read_vertex(ss, {filename, line_nr, line});
+            auto [name, vertex] = read_vertex(&line.data()[pos+1], {filename, line_nr, line});
             if (domain.vertices.find(name) != domain.vertices.end())
-                throw multiple_definitions_error(filename, name);
+                throw multiple_definitions_error({filename, line_nr, name});
 
             domain.vertices.emplace(name, vertex);
         }
-        else if (key == "BOUNDARY")
+        else if (!std::strcmp(key, "BOUNDARY"))
         {
-            auto [name, boundary] = read_boundary(ss, {filename, line_nr, line});
+            auto [name, boundary] = read_boundary(&line.data()[pos+1], {filename, line_nr, line});
             if (domain.boundaries.find(name) != domain.boundaries.end())
-                throw multiple_definitions_error(filename, name);
+                throw multiple_definitions_error({filename, line_nr, name});
 
             domain.boundaries.emplace(name, boundary);
         }
@@ -84,5 +85,10 @@ domain_t read_domain_file(std::string const& filename)
     }
 
     return domain;
+}
+
+void validate_domain(domain_t const& domain)
+{
+
 }
 
