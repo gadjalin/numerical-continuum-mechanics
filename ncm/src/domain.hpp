@@ -9,6 +9,8 @@
 #include "error.hpp"
 #include "parse.hpp"
 
+#define SMALL_DX 0.001
+
 enum class boundary_type : uint8_t
 { 
     FREE = 0,
