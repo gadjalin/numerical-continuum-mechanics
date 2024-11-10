@@ -1,5 +1,7 @@
 #include "args.hpp"
 
+#include <cstring>
+
 unknown_argument::unknown_argument(std::string const& arg)
     : error("Unrecognised argument: " + arg) {}
 

@@ -1,8 +1,11 @@
 #ifndef NCM_MESH_HPP
 #define NCM_MESH_HPP
 
+#include <cstdint>
 #include <string>
+
 #include <map>
+
 #include "error.hpp"
 #include "parse.hpp"
 

@@ -1,9 +1,12 @@
 #include "domain.hpp"
 
-#include <fstream>
-#include <tuple>
+#include <cstring>
 #include <cstdio>
 #include <cassert>
+
+#include <fstream>
+#include <tuple>
+
 #include "parse.hpp"
 
 multiple_definitions_error::multiple_definitions_error(file_location_t const& loc)

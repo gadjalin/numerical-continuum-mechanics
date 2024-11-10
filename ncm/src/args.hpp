@@ -2,6 +2,7 @@
 #define NCM_ARGS_HPP
 
 #include <string>
+
 #include "error.hpp"
 
 typedef struct program_arguments

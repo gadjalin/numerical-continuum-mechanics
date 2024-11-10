@@ -2,6 +2,7 @@
 #define NCM_PARSE_HPP
 
 #include <string>
+
 #include "error.hpp"
 
 #define PARFILE_COMMENT_CHAR '#'

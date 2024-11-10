@@ -1,6 +1,7 @@
 #include "config.hpp"
 
 #include <fstream>
+
 #include "parse.hpp"
 
 config_t read_config_file(std::string const& filename)

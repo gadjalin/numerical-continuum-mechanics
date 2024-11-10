@@ -1,6 +1,7 @@
 #include "debug.hpp"
 
 #include <iostream>
+
 #include "config.hpp"
 #include "domain.hpp"
 
