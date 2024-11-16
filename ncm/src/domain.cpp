@@ -10,8 +10,6 @@
 #include <tuple>
 #include <algorithm>
 
-#include "parse.hpp"
-
 multiple_definitions_error::multiple_definitions_error(file_location_t const& loc)
     : error("Multiple definitions of object " + loc.expr + " in file " + loc.file + " @ line " + std::to_string(loc.line)) {}
 
@@ -133,6 +131,31 @@ namespace
             throw std::logic_error("Boundary has zero-length: " + k);
     }
 
+    void check_boundaries_intersect(std::map<std::string, vertex_t> const& vertices,
+                                    std::map<std::string, boundary_t> const& boundaries)
+    {
+        std::string k1, k2;
+        bool has_intersect = compare_any_of(boundaries,
+        [&k1,&k2, &vertices](auto const& b1, auto const& b2) -> bool
+        {
+            vertex_t u1 = vertices.at(b1.second.v1);
+            vertex_t u2 = vertices.at(b1.second.v2);
+            vertex_t v1 = vertices.at(b2.second.v1);
+            vertex_t v2 = vertices.at(b2.second.v2);
+            bool do_intersect = intersect(u1, u2, v1, v2);
+            if (do_intersect)
+            {
+                k1 = b1.first;
+                k2 = b2.first;
+            }
+
+            return do_intersect;
+        });
+
+        if (has_intersect)
+            throw std::logic_error("Boundaries intersect: " + k1 + ", " + k2);
+    }
+
     void check_boundaries_are_closed(std::map<std::string, boundary_t> const& boundaries)
     {
         std::map<std::string, std::vector<std::string>> connections;
@@ -205,6 +228,7 @@ void validate_domain(domain_t const& domain)
     check_duplicate_vertices(domain.vertices);
     check_duplicate_boundaries(domain.boundaries);
     check_zero_length_boundary(domain.boundaries);
+    check_boundaries_intersect(domain.vertices, domain.boundaries);
     // Check that every boundary is connected to another on both ends
     // Check that all connected boundary form a closed shape (implicit from previous check?)
     check_boundaries_are_closed(domain.boundaries);

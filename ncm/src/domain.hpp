@@ -1,5 +1,5 @@
-#ifndef NCM_MESH_HPP
-#define NCM_MESH_HPP
+#ifndef NCM_DOMAIN_HPP
+#define NCM_DOMAIN_HPP
 
 #include <cstdint>
 #include <string>
@@ -8,6 +8,7 @@
 
 #include "error.hpp"
 #include "parse.hpp"
+#include "vertex.hpp"
 
 #define SMALL_DX 0.001
 
@@ -17,11 +18,6 @@ enum class boundary_type : uint8_t
     FIXED,
     USER
 };
-
-typedef struct vertex
-{
-    float x, y;
-} vertex_t;
 
 typedef struct boundary
 {
@@ -44,4 +40,4 @@ public:
 domain_t read_domain_file(std::string const& filename);
 void validate_domain(domain_t const& domain);
 
-#endif // NCM_MESH_HPP
+#endif // NCM_DOMAIN_HPP
