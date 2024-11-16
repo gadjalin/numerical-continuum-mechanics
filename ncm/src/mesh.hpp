@@ -1,0 +1,28 @@
+#ifndef NCM_MESH_HPP
+#define NCM_MESH_HPP
+
+#include <array>
+
+#include "vertex.hpp"
+#include "domain.hpp"
+
+typedef struct node
+{
+    vertex_t pos;
+    bool fixed;
+} node_t;
+
+typedef struct element
+{
+    std::array<unsigned int, 3> node_ids;
+} element_t;
+
+typedef struct mesh
+{
+    std::vector<node_t> nodes;
+    std::vector<element_t> elements;
+} mesh_t;
+
+mesh_t generate_mesh(domain_t const& domain, float resolution);
+
+#endif // NCM_MESH_HPP
