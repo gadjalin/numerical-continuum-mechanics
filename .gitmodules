@@ -1,3 +1,6 @@
 [submodule "visualise/deps/glf90w"]
 	path = visualise/deps/glf90w
 	url = https://github.com/AarnoldGad/glf90w
+[submodule "ncm/deps/nail"]
+	path = ncm/deps/nail
+	url = https://github.com/AarnoldGad/nail.git

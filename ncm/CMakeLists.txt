@@ -1,3 +1,5 @@
+ADD_SUBDIRECTORY(deps/nail)
+
 ADD_EXECUTABLE(ncm_main)
 
 SET_TARGET_PROPERTIES(ncm_main PROPERTIES
@@ -19,6 +21,7 @@ TARGET_COMPILE_DEFINITIONS(ncm_main PRIVATE
 
 TARGET_INCLUDE_DIRECTORIES(ncm_main PRIVATE
     "${SRC_DIR}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/deps/nail/include"
     "${PROJECT_BINARY_DIR}")
 
 TARGET_INCLUDE_DIRECTORIES(ncm_main SYSTEM PRIVATE
@@ -41,6 +44,7 @@ TARGET_LINK_DIRECTORIES(ncm_main PRIVATE
     $<$<PLATFORM_ID:Linux,Darwin>:/usr/local/lib>)
 
 TARGET_LINK_LIBRARIES(ncm_main PRIVATE
+    nail
     Threads::Threads
     ${CMAKE_DL_LIBS})
 
