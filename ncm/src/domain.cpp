@@ -9,7 +9,8 @@
 #include <vector>
 #include <fstream>
 #include <tuple>
-#include <numeric>
+
+#include <nail/Utils/String.hpp>
 
 multiple_definitions_error::multiple_definitions_error(file_location_t const& loc)
     : error("Multiple definitions of object " + loc.expr + " in file " + loc.file + " @ line " + std::to_string(loc.line)) {}
@@ -80,94 +81,84 @@ namespace
         return !compare_any_of(m, p);
     }
 
-    std::string join(std::string const& s1, std::string const& s2, std::string const& delimiter)
+    std::string join_pairs(std::vector<std::pair<std::string, std::string> > const& name_map)
     {
-        return s1 + delimiter + s2;
+        std::string line;
+        for (auto const& [s1, s2] : name_map)
+            line += "\t\t(" + s1 + "," + s2 + ")\n";
+        return line;
     }
 
-    std::string join_all(std::vector<std::string> const& strings, std::string const& delimiter)
+    std::string join_vertex_boundary(std::vector<std::pair<std::string, std::string> > const& name_map)
     {
-        assert(!strings.empty());
-        return std::accumulate(std::next(strings.begin()), strings.end(), strings.front(), 
-        [&delimiter](std::string const& a, std::string const& b) -> std::string
-        {
-            return join(a, b, delimiter);
-        });
+        std::string line;
+        for (auto const& [boundary, vertex] : name_map)
+            line += "\t\tVertex " + vertex + " referenced in boundary " + boundary + "\n";
+        return line;
     }
 
-    void check_duplicate_vertices(std::map<std::string, vertex_t> const& vertices)
+    std::vector<std::pair<std::string, std::string> > find_duplicate_vertices(std::map<std::string, vertex_t> const& vertices)
     {
         std::vector<std::pair<std::string, std::string>> duplicates;
         compare_each(vertices,
-        [&duplicates](auto const& v1, auto const& v2) -> bool
+        [&duplicates](auto const& v1, auto const& v2) -> void
         {
             float dx = v1.second.x - v2.second.x;
             float dy = v1.second.y - v2.second.y;
             bool are_same = (std::sqrt(dx*dx + dy*dy)) < SMALL_DX;
             if (are_same)
-            {
-                k1 = v1.first;
-                k2 = v2.first;
-            }
-
-            return are_same;
+                duplicates.push_back({v1.first, v2.first});
         });
 
-        if (has_duplicate)
-            throw std::logic_error("Vertices have similar coordinates: " + k1 +  "," + k2);
+        return duplicates;
     }
 
-    void check_boundaries_valid(std::map<std::string, vertex_t> const& vertices,
-                                std::map<std::string, boundary_t> const& boundaries)
+    std::vector<std::pair<std::string, std::string> > find_undefined_vertices(std::map<std::string, vertex_t> const& vertices,
+                                                                              std::map<std::string, boundary_t> const& boundaries)
     {
+        std::vector<std::pair<std::string, std::string> > undefined_vertices;
         for (auto const& [name, boundary] : boundaries)
         {
             if (vertices.find(boundary.v1) == vertices.end())
-                throw std::logic_error("Undefined vertex " + boundary.v1 + " for boundary " + name + "!");
+                undefined_vertices.push_back({name, boundary.v1});
             if (vertices.find(boundary.v2) == vertices.end())
-                throw std::logic_error("Undefined vertex " + boundary.v2 + " for boundary " + name + "!");
+                undefined_vertices.push_back({name, boundary.v2});
         }
+
+        return undefined_vertices;
     }
 
-    void check_duplicate_boundaries(std::map<std::string, boundary_t> const& boundaries)
+    std::vector<std::pair<std::string, std::string> > find_duplicate_boundaries(std::map<std::string, boundary_t> const& boundaries)
     {
-        std::string k1, k2;
-        bool has_duplicate = compare_any_of(boundaries,
-        [&k1, &k2](auto const& b1, auto const& b2) -> bool
+        std::vector<std::pair<std::string, std::string> > duplicates;
+        compare_each(boundaries,
+        [&duplicates](auto const& b1, auto const& b2) -> void
         {
             bool are_same = (b1.second.v1 == b2.second.v1 && b1.second.v2 == b2.second.v2) ||
                             (b1.second.v1 == b2.second.v2 && b1.second.v2 == b2.second.v1);
             if (are_same)
-            {
-                k1 = b1.first;
-                k2 = b2.first;
-            }
-
-            return are_same;
+                duplicates.push_back({b1.first, b2.first});
         });
 
-        if (has_duplicate)
-            throw std::logic_error("Boundaries have same end points: " + k1 + "," + k2);
+        return duplicates;
     }
 
-    void check_zero_length_boundary(std::map<std::string, boundary_t> const& boundaries)
+    std::vector<std::string> find_zero_length_boundaries(std::map<std::string, boundary_t> const& boundaries)
     {
         std::vector<std::string> ids;
         for (auto const& [name, boundary] : boundaries)
             if (boundary.v1 == boundary.v2)
                 ids.push_back(name);
 
-        if (!ids.empty())
-            throw std::logic_error("Boundaries have zero-length: " +
-                                   std::accumulate(std::next(ids.begin()), ids.end(), ids.front(), join_with_comma));
+        return ids;
     }
 
-    void check_boundaries_intersect(std::map<std::string, vertex_t> const& vertices,
-                                    std::map<std::string, boundary_t> const& boundaries)
+    std::vector<std::pair<std::string, std::string> > find_boundaries_intersect(std::map<std::string, vertex_t> const& vertices,
+                                                                                std::map<std::string, boundary_t> const& boundaries)
     {
-        std::string k1, k2;
-        bool has_intersect = compare_any_of(boundaries,
-        [&k1,&k2, &vertices](auto const& b1, auto const& b2) -> bool
+        std::vector<std::pair<std::string, std::string> > intersects;
+        compare_each(boundaries,
+        [&intersects, &vertices](auto const& b1, auto const& b2) -> void
         {
             vertex_t u1 = vertices.at(b1.second.v1);
             vertex_t u2 = vertices.at(b1.second.v2);
@@ -175,21 +166,16 @@ namespace
             vertex_t v2 = vertices.at(b2.second.v2);
             bool do_intersect = intersect(u1, u2, v1, v2);
             if (do_intersect)
-            {
-                k1 = b1.first;
-                k2 = b2.first;
-            }
-
-            return do_intersect;
+                intersects.push_back({b1.first, b2.first});
         });
 
-        if (has_intersect)
-            throw std::logic_error("Boundaries intersect: " + k1 + ", " + k2);
+        return intersects;
     }
 
-    void check_boundaries_are_closed(std::map<std::string, boundary_t> const& boundaries)
+    std::vector<std::pair<std::string, std::string> > find_dangling_vertices(std::map<std::string, boundary_t> const& boundaries)
     {
         std::map<std::string, std::vector<std::string>> connections;
+        std::vector<std::pair<std::string, std::string> > danglings;
 
         for (auto [key, boundary] : boundaries)
         {
@@ -199,7 +185,9 @@ namespace
 
         for (auto [key, links] : connections)
             if (links.size() == 1)
-                throw std::logic_error("Dangling connection: vertex " + key + " on boundary " + links.front());
+                danglings.push_back({links.front(), key});
+
+        return danglings;
     }
 }
 
@@ -254,14 +242,30 @@ void validate_domain(domain_t const& domain)
     if (domain.vertices.size() < 3) throw std::logic_error("Too few vertice!");
     if (domain.boundaries.size() < 3) throw std::logic_error("Too few boundaries!");
 
-    check_boundaries_valid(domain.vertices, domain.boundaries);
+    auto name_map = find_undefined_vertices(domain.vertices, domain.boundaries);
+    if (!name_map.empty())
+        throw std::logic_error("Undefined vertices: \n" + join_vertex_boundary(name_map));
 
-    check_duplicate_vertices(domain.vertices);
-    check_duplicate_boundaries(domain.boundaries);
-    check_zero_length_boundary(domain.boundaries);
-    check_boundaries_intersect(domain.vertices, domain.boundaries);
+    name_map = find_duplicate_vertices(domain.vertices);
+    if (!name_map.empty())
+        throw std::logic_error("Vertices have similar coordinates: \n" + join_pairs(name_map));
+
+    name_map = find_duplicate_boundaries(domain.boundaries);
+    if (!name_map.empty())
+        throw std::logic_error("Boundaries have same end points: \n" + join_pairs(name_map));
+
+    auto name_list = find_zero_length_boundaries(domain.boundaries);
+    if (!name_list.empty())
+        throw std::logic_error("Boundaries have zero-length: " + nail::join_all(name_list.cbegin(), name_list.cend(), ", "));
+                               
+
+    name_map = find_boundaries_intersect(domain.vertices, domain.boundaries);
+    if (!name_map.empty())
+        throw std::logic_error("Boundaries intersect: \n" + join_pairs(name_map));
     // Check that every boundary is connected to another on both ends
     // Check that all connected boundary form a closed shape (implicit from previous check?)
-    check_boundaries_are_closed(domain.boundaries);
+    name_map = find_dangling_vertices(domain.boundaries);
+    if (!name_map.empty())
+        throw std::logic_error("Dangling connection: \n" + join_vertex_boundary(name_map));
 }
 
