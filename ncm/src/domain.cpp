@@ -11,6 +11,7 @@
 #include <tuple>
 
 #include <nail/Utils/String.hpp>
+#include <nail/Utils/Algorithm.hpp>
 
 multiple_definitions_error::multiple_definitions_error(file_location_t const& loc)
     : error("Multiple definitions of object " + loc.expr + " in file " + loc.file + " @ line " + std::to_string(loc.line)) {}
@@ -50,37 +51,6 @@ namespace
         return {name, {.v1 = v1, .v2 = v2, .type = type}};
     }
 
-    template<typename Key, typename Value, typename UnaryFn>
-    void compare_each(std::map<Key, Value> const& m, UnaryFn fn)
-    {
-        for (auto it = m.cbegin(); it != m.cend(); ++it)
-            for (auto it2 = std::next(it); it2 != m.cend(); ++it2)
-                fn(*it, *it2);
-    }
-
-    template<typename Key, typename Value, typename UnaryPred>
-    bool compare_all_of(std::map<Key, Value> const& m, UnaryPred p)
-    {
-        return !compare_any_of(m, [&p](auto const& lhs, auto const& rhs) { return !p(lhs, rhs); });
-    }
-
-    template<typename Key, typename Value, typename UnaryPred>
-    bool compare_any_of(std::map<Key, Value> const& m, UnaryPred p)
-    {
-        for (auto it = m.cbegin(); it != m.cend(); ++it)
-            for (auto it2 = std::next(it); it2 != m.cend(); ++it2)
-                if (p(*it, *it2))
-                    return true;
-
-        return false;
-    }
-
-    template<typename Key, typename Value, typename UnaryPred>
-    bool compare_none_of(std::map<Key, Value> const& m, UnaryPred p)
-    {
-        return !compare_any_of(m, p);
-    }
-
     std::string join_pairs(std::vector<std::pair<std::string, std::string> > const& name_map)
     {
         std::string line;
@@ -100,7 +70,7 @@ namespace
     std::vector<std::pair<std::string, std::string> > find_duplicate_vertices(std::map<std::string, vertex_t> const& vertices)
     {
         std::vector<std::pair<std::string, std::string>> duplicates;
-        compare_each(vertices,
+        nail::compare_each(vertices.cbegin(), vertices.cend(),
         [&duplicates](auto const& v1, auto const& v2) -> void
         {
             float dx = v1.second.x - v2.second.x;
@@ -131,7 +101,7 @@ namespace
     std::vector<std::pair<std::string, std::string> > find_duplicate_boundaries(std::map<std::string, boundary_t> const& boundaries)
     {
         std::vector<std::pair<std::string, std::string> > duplicates;
-        compare_each(boundaries,
+        nail::compare_each(boundaries.cbegin(), boundaries.cend(),
         [&duplicates](auto const& b1, auto const& b2) -> void
         {
             bool are_same = (b1.second.v1 == b2.second.v1 && b1.second.v2 == b2.second.v2) ||
@@ -157,7 +127,7 @@ namespace
                                                                                 std::map<std::string, boundary_t> const& boundaries)
     {
         std::vector<std::pair<std::string, std::string> > intersects;
-        compare_each(boundaries,
+        nail::compare_each(boundaries.cbegin(), boundaries.cend(),
         [&intersects, &vertices](auto const& b1, auto const& b2) -> void
         {
             vertex_t u1 = vertices.at(b1.second.v1);
