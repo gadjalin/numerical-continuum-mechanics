@@ -3,12 +3,13 @@
 #include <cstring>
 #include <cstdio>
 #include <cmath>
+#include <cassert>
 
 #include <map>
 #include <vector>
 #include <fstream>
 #include <tuple>
-#include <algorithm>
+#include <numeric>
 
 multiple_definitions_error::multiple_definitions_error(file_location_t const& loc)
     : error("Multiple definitions of object " + loc.expr + " in file " + loc.file + " @ line " + std::to_string(loc.line)) {}
@@ -48,8 +49,22 @@ namespace
         return {name, {.v1 = v1, .v2 = v2, .type = type}};
     }
 
-    template<typename Key, typename Value, typename Predicate>
-    bool compare_any_of(std::map<Key, Value> const& m, Predicate p)
+    template<typename Key, typename Value, typename UnaryFn>
+    void compare_each(std::map<Key, Value> const& m, UnaryFn fn)
+    {
+        for (auto it = m.cbegin(); it != m.cend(); ++it)
+            for (auto it2 = std::next(it); it2 != m.cend(); ++it2)
+                fn(*it, *it2);
+    }
+
+    template<typename Key, typename Value, typename UnaryPred>
+    bool compare_all_of(std::map<Key, Value> const& m, UnaryPred p)
+    {
+        return !compare_any_of(m, [&p](auto const& lhs, auto const& rhs) { return !p(lhs, rhs); });
+    }
+
+    template<typename Key, typename Value, typename UnaryPred>
+    bool compare_any_of(std::map<Key, Value> const& m, UnaryPred p)
     {
         for (auto it = m.cbegin(); it != m.cend(); ++it)
             for (auto it2 = std::next(it); it2 != m.cend(); ++it2)
@@ -59,11 +74,32 @@ namespace
         return false;
     }
 
+    template<typename Key, typename Value, typename UnaryPred>
+    bool compare_none_of(std::map<Key, Value> const& m, UnaryPred p)
+    {
+        return !compare_any_of(m, p);
+    }
+
+    std::string join(std::string const& s1, std::string const& s2, std::string const& delimiter)
+    {
+        return s1 + delimiter + s2;
+    }
+
+    std::string join_all(std::vector<std::string> const& strings, std::string const& delimiter)
+    {
+        assert(!strings.empty());
+        return std::accumulate(std::next(strings.begin()), strings.end(), strings.front(), 
+        [&delimiter](std::string const& a, std::string const& b) -> std::string
+        {
+            return join(a, b, delimiter);
+        });
+    }
+
     void check_duplicate_vertices(std::map<std::string, vertex_t> const& vertices)
     {
-        std::string k1, k2;
-        bool has_duplicate = compare_any_of(vertices,
-        [&k1, &k2](auto const& v1, auto const& v2) -> bool
+        std::vector<std::pair<std::string, std::string>> duplicates;
+        compare_each(vertices,
+        [&duplicates](auto const& v1, auto const& v2) -> bool
         {
             float dx = v1.second.x - v2.second.x;
             float dy = v1.second.y - v2.second.y;
@@ -116,19 +152,14 @@ namespace
 
     void check_zero_length_boundary(std::map<std::string, boundary_t> const& boundaries)
     {
-        std::string k;
-        bool has_null_boundary = std::any_of(boundaries.begin(), boundaries.end(),
-        [&k](auto const& b) -> bool
-        {
-            bool is_null = b.second.v1 == b.second.v2;
-            if (is_null)
-                k = b.first;
+        std::vector<std::string> ids;
+        for (auto const& [name, boundary] : boundaries)
+            if (boundary.v1 == boundary.v2)
+                ids.push_back(name);
 
-            return is_null;
-        });
-
-        if (has_null_boundary)
-            throw std::logic_error("Boundary has zero-length: " + k);
+        if (!ids.empty())
+            throw std::logic_error("Boundaries have zero-length: " +
+                                   std::accumulate(std::next(ids.begin()), ids.end(), ids.front(), join_with_comma));
     }
 
     void check_boundaries_intersect(std::map<std::string, vertex_t> const& vertices,

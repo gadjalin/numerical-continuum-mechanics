@@ -2,6 +2,7 @@
 #define NCM_MESH_HPP
 
 #include <array>
+#include <vector>
 
 #include "vertex.hpp"
 #include "domain.hpp"
@@ -12,14 +13,20 @@ typedef struct node
     bool fixed;
 } node_t;
 
+typedef struct edge
+{
+    std::array<unsigned int, 2> nodes;
+} edge_t;
+
 typedef struct element
 {
-    std::array<unsigned int, 3> node_ids;
+    std::array<unsigned int, 3> nodes;
 } element_t;
 
 typedef struct mesh
 {
     std::vector<node_t> nodes;
+    std::vector<edge_t> edges;
     std::vector<element_t> elements;
 } mesh_t;
 
