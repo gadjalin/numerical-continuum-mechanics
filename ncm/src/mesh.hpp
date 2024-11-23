@@ -7,11 +7,11 @@
 #include "vertex.hpp"
 #include "domain.hpp"
 
-typedef struct node
+typedef struct box
 {
-    vertex_t pos;
-    bool fixed;
-} node_t;
+    vertex_t lower;
+    vertex_t upper;
+} box_t;
 
 typedef struct edge
 {
@@ -25,7 +25,7 @@ typedef struct element
 
 typedef struct mesh
 {
-    std::vector<node_t> nodes;
+    std::vector<vertex_t> nodes;
     std::vector<edge_t> edges;
     std::vector<element_t> elements;
 } mesh_t;
