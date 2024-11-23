@@ -1,10 +1,31 @@
 #include "vertex.hpp"
 
+#include <cmath>
 #include <algorithm>
 
 bool operator==(vertex_t const& lhs, vertex_t const& rhs)
 {
     return lhs.x == rhs.x && lhs.y == rhs.y;
+}
+
+vertex_t operator+(vertex_t const& lhs, vertex_t const& rhs)
+{
+    return {lhs.x + rhs.x, lhs.y + rhs.y};
+}
+
+vertex_t operator-(vertex_t const& lhs, vertex_t const& rhs)
+{
+    return {lhs.x - rhs.x, lhs.y - rhs.y};
+}
+
+vertex_t operator*(vertex_t const& v, float f)
+{
+    return {v.x * f, v.y * f};
+}
+
+vertex_t operator/(vertex_t const& v, float f)
+{
+    return {v.x / f, v.y / f};
 }
 
 bool on_segment(vertex_t const& u1, vertex_t const& u2, vertex_t const& v)
@@ -38,5 +59,15 @@ bool intersect(vertex_t const& u1, vertex_t const& u2, vertex_t const& v1, verte
         return true;
     else
         return false;
+}
+
+float dot(vertex_t const& u1, vertex_t const& u2)
+{
+    return u1.x*u2.x + u1.y*u2.y;
+}
+
+float distance(vertex_t const& u1, vertex_t const& u2)
+{
+    return std::sqrt(dot(u1, u2));
 }
 
