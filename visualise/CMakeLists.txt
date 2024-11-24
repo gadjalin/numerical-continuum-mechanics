@@ -18,11 +18,12 @@ TARGET_COMPILE_DEFINITIONS(ncm_vis PRIVATE
 
 TARGET_INCLUDE_DIRECTORIES(ncm_vis PRIVATE
     "${SRC_DIR}"
+    "${DEPS_DIR}/glad/include"
     "${PROJECT_BINARY_DIR}")
 
 TARGET_SOURCES(ncm_vis PRIVATE
     ${SRC_DIR}/main.F90
-    #${DEPS_DIR}/glad/gl.F90
+    ${DEPS_DIR}/glad/src/gl.F90
 )
 
 TARGET_LINK_LIBRARIES(ncm_vis PRIVATE
