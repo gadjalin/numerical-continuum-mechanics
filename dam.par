@@ -1,7 +1,7 @@
 # Parameter file for the dam
 output_file = "dam.dat"
 domain_file = "dam.d2d" # domain2d
-resolution = 0.1
+resolution = 0.5
 
 E = 1e2 # Young modulus
 nu = 0.3 # Poisson factor

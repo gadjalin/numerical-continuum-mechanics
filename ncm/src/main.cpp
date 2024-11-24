@@ -22,6 +22,7 @@ int main(int argc, char* argv[])
 #endif
 
     mesh_t mesh = generate_mesh(domain, cfg.resolution);
+    save_mesh(mesh, "default.mesh");
 
     return 0;
 }

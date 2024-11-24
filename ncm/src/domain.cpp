@@ -13,6 +13,8 @@
 #include <nail/Utils/String.hpp>
 #include <nail/Utils/Algorithm.hpp>
 
+#include "geometry.hpp"
+
 multiple_definitions_error::multiple_definitions_error(file_location_t const& loc)
     : error("Multiple definitions of object " + loc.expr + " in file " + loc.file + " @ line " + std::to_string(loc.line)) {}
 
