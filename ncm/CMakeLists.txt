@@ -35,6 +35,7 @@ TARGET_SOURCES(ncm_main PRIVATE
     ${SRC_DIR}/parse.cpp
     ${SRC_DIR}/config.cpp
     ${SRC_DIR}/vertex.cpp
+    ${SRC_DIR}/geometry.cpp
     ${SRC_DIR}/domain.cpp
     ${SRC_DIR}/mesh.cpp
     ${SRC_DIR}/main.cpp)
