@@ -57,6 +57,6 @@ float dot(vertex_t const& u1, vertex_t const& u2)
 
 float distance(vertex_t const& u1, vertex_t const& u2)
 {
-    return std::sqrt(dot(u1, u2));
+    return std::sqrt(dot(u1+u2, u1+u2));
 }
 
