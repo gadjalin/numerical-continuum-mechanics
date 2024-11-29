@@ -1,9 +1,17 @@
 program visualise
     use glf90w
     use gl
+    use ncm
 
     implicit none
     type(GLFWwindow) :: window
+    type(mesh_t) :: mesh
+
+    integer :: i
+    real :: viewport_size
+
+    mesh = read_mesh('default.mesh')
+    viewport_size = max(maxval(mesh%nodes(:)%x), maxval(mesh%nodes(:)%y))
 
     call glfwSetErrorCallback(error_callback)
 
@@ -26,13 +34,14 @@ program visualise
         call glClearColor(0.28, 0.13, 0.34, 1.0)
         call glClear(GL_COLOR_BUFFER_BIT)
 
-        call glBegin(GL_TRIANGLE_STRIP)
-        call glColor3f(1.0, 1.0, 1.0)
-        call glVertex2f(0.0, 0.0)
-        call glColor3f(1.0, 1.0, 1.0)
-        call glVertex2f(1.0, 0.0)
-        call glColor3f(1.0, 1.0, 1.0)
-        call glVertex2f(0.0, 1.0)
+        call glPointSize(2.0)
+        call glBegin(GL_POINTS)
+
+        do i = 1,size(mesh%nodes)
+            call glColor3f(1.0, 1.0, 1.0)
+            call glVertex2f((mesh%nodes(i)%x/viewport_size)*0.95, (mesh%nodes(i)%y/viewport_size)*0.95)
+        end do
+
         call glEnd()
 
         call glfwSwapBuffers(window)

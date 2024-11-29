@@ -23,6 +23,7 @@ TARGET_INCLUDE_DIRECTORIES(ncm_vis PRIVATE
 
 TARGET_SOURCES(ncm_vis PRIVATE
     ${SRC_DIR}/main.F90
+    ${SRC_DIR}/ncm.F90
     ${DEPS_DIR}/glad/src/gl.F90
 )
 

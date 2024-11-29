@@ -1,6 +1,6 @@
 #include "mesh.hpp"
 
-#include <fstream>
+#include <cstdio>
 
 #include "geometry.hpp"
 
@@ -41,7 +41,7 @@ namespace
             vertex_t v1 = domain.vertices.at(boundary.v1);
             vertex_t v2 = domain.vertices.at(boundary.v2);
             vertex_t v1v2 = v1 - v2;
-            int num_steps = int(distance(v1, v2) / resolution) - 1;
+            int num_steps = int(distance(v1, v2) / resolution);
 
             size_t offset = mesh.nodes.size();
             mesh.nodes.push_back(v1);
@@ -87,7 +87,7 @@ mesh_t generate_mesh(domain_t const& domain, float resolution)
 
     box_t bounds = get_domain_bounds(domain);
     mesh.nodes = generate_uniform_grid(bounds, resolution);
-    //insert_refined_edges(mesh, domain, resolution);
+    insert_refined_edges(mesh, domain, resolution);
     //remove_outside_nodes(mesh);
     //init_neighbours(mesh);
 
@@ -96,20 +96,23 @@ mesh_t generate_mesh(domain_t const& domain, float resolution)
 
 void save_mesh(mesh const& mesh, std::string const& filename)
 {
-    std::ofstream mesh_file(filename);
+    FILE* mesh_file;
+    mesh_file = std::fopen(filename.c_str(), "w");
     if (!mesh_file)
         throw std::runtime_error("Unable to save mesh");
 
-    mesh_file << mesh.nodes.size() << std::endl;
+    std::fprintf(mesh_file, "%8ld\n", mesh.nodes.size());
     for (vertex_t const& vertex : mesh.nodes)
-        mesh_file << vertex.x << " " << vertex.y << std::endl;
+        std::fprintf(mesh_file, "%12.5f %12.5f\n", vertex.x, vertex.y);
 
-    mesh_file << mesh.edges.size() << std::endl;
+    std::fprintf(mesh_file, "%8ld\n", mesh.edges.size());
     for (edge_t const& edge : mesh.edges)
-        mesh_file << edge.nodes[0] << " " << edge.nodes[1] << std::endl;
+        std::fprintf(mesh_file, "%8ld %8ld\n", edge.nodes[0], edge.nodes[1]);
 
-    mesh_file << mesh.elements.size() << std::endl;
+    std::fprintf(mesh_file, "%8ld\n", mesh.elements.size());
     for (element_t const& element : mesh.elements)
-        mesh_file << element.nodes[0] << " " << element.nodes[1] << " " << element.nodes[2] << std::endl;
+        std::fprintf(mesh_file, "%8ld %8ld %8ld\n", element.nodes[0], element.nodes[1], element.nodes[2]);
+
+    std::fclose(mesh_file);
 }
 
